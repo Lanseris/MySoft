@@ -3,3 +3,6 @@
 ################################################################################
 
 /MoiSoftBleat/bin/Debug
+/MoiSoftBleat/obj/Debug/View
+/MoiSoftBleat/obj/Debug
+/.vs/MoiSoftBleat/v16/Server/sqlite3
