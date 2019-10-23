@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MoiSoftBleat.Data
 {
-    class Picture
+    public class Picture
     {
         public readonly Guid pictureUid;
 

@@ -4,8 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MoiSoftBleat"
+        xmlns:viewmodel="clr-namespace:MoiSoftBleat.ViewModel"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.DataContext>
+        <viewmodel:PicturesViewModel/>
+    </Window.DataContext>
+    
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
@@ -19,6 +25,11 @@
         <StackPanel Orientation="Horizontal"/>
         <TextBlock Text="Фильтр" Margin="5"/>
         <TextBox Text="{Binding FilterText}" Width="200" Margin="5"/>
+        <DataGrid Grid.Row="1" Margin="10" ItemsSource="{Binding  Pictures}" AutoGenerateColumns="True" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Guid" Binding="{Binding Key }"/>
+            </DataGrid.Columns>
+            </DataGrid>
     </Grid>
     <!--<WrapPanel >
         <Button Content="хай" Height="100" Width="100"></Button>
