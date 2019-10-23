@@ -29,10 +29,15 @@ namespace MoiSoftBleat.ViewModel
             Pictures = _picturesManager.Pictures;
 
             OnPropertyChanged();
-           // Pictures = CollectionViewSource.GetDefaultView(_picturesManager.Pictures);
+            #region DependencyObject
+            // Pictures = CollectionViewSource.GetDefaultView(_picturesManager.Pictures); 
+            #endregion
         }
 
+        public void LoadFilesFromFolder(string folder)
+        {
 
+        }
 
         #region DependencyObject
         //public string FilterTest

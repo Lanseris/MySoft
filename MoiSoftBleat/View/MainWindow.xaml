@@ -25,11 +25,12 @@
         <StackPanel Orientation="Horizontal"/>
         <TextBlock Text="Фильтр" Margin="5"/>
         <TextBox Text="{Binding FilterText}" Width="200" Margin="5"/>
-        <DataGrid Grid.Row="1" Margin="10" ItemsSource="{Binding  Pictures}" AutoGenerateColumns="True" >
+        <DataGrid Grid.Row="1" Margin="10" ItemsSource="{Binding  Pictures}" AutoGenerateColumns="False" >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Guid" Binding="{Binding Key }"/>
             </DataGrid.Columns>
-            </DataGrid>
+        </DataGrid>
+        <Button Grid.Column="1" Width="200" Content="выбрать папку"/>
     </Grid>
     <!--<WrapPanel >
         <Button Content="хай" Height="100" Width="100"></Button>
