@@ -26,5 +26,6 @@ namespace MoiSoftBleat
         {
             InitializeComponent();
         }
+
     }
 }

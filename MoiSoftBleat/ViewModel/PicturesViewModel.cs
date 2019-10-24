@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Forms;
+using System.Windows.Input;
 using MoiSoftBleat.Data;
+using Xamarin.Forms;
 
 namespace MoiSoftBleat.ViewModel
 {
@@ -16,27 +20,65 @@ namespace MoiSoftBleat.ViewModel
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        void OnPropertyChanged(string prop = "Pictures")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
-        }
+        public Dictionary<Guid, string> Pictures { get; set; }
 
-        public Dictionary<Guid,Picture> Pictures { get; set; }
+        public string FolderPath { get; set; }
 
         public PicturesViewModel()
         {
             _picturesManager = new PicturesManager();
-            Pictures = _picturesManager.Pictures;
+            Pictures = _picturesManager.Pictures.ToDictionary(t => t.Key, t => t.Value.Name);
 
-            OnPropertyChanged();
+            OnPropertyChanged("Pictures");
+
+            #region ICommand init
+
+            selectLoadFolder = new Command(SelectLoadFolder);
+            
+            #endregion
+
             #region DependencyObject
             // Pictures = CollectionViewSource.GetDefaultView(_picturesManager.Pictures); 
             #endregion
         }
 
-        public void LoadFilesFromFolder(string folder)
-        {
+        #region ICommand members
 
+        public ICommand selectLoadFolder { get; }
+
+        #endregion
+        
+        
+        #region Property update
+
+        void OnPropertyChanged(string prop)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+        } 
+
+        #endregion
+
+        public void SelectLoadFolder()
+        {
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+            if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                if (!String.IsNullOrEmpty(folderBrowserDialog.SelectedPath))
+                {
+                    FolderPath = folderBrowserDialog.SelectedPath;
+                    OnPropertyChanged("FolderPath");
+
+                    #region Загрузка картинок в манагере
+
+                    _picturesManager.SetFolder(FolderPath);
+                    _picturesManager.LoadPictures(); 
+
+                    #endregion
+                    //Изменение источника данных для вьюхи и вызов обновления
+                    Pictures = _picturesManager.Pictures.ToDictionary(t => t.Key, t => t.Value.Name);
+                    OnPropertyChanged("Pictures");
+                }
+            }
         }
 
         #region DependencyObject
