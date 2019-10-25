@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Xamarin.Forms;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace MoiSoftBleat.Data
 {
@@ -83,7 +84,7 @@ namespace MoiSoftBleat.Data
 
             foreach (var item in picturesNamesAndPath)
             {
-                image = new Image {Source = item.Value };
+                image = new Image {Source = new BitmapImage( new Uri( item.Value ))};
                 picture = new Picture(item.Key, new List<string>(),image);
                 pictures.Add(picture.pictureUid, picture);
             }
@@ -95,7 +96,7 @@ namespace MoiSoftBleat.Data
             Dictionary<string, string> nameVsPath = new Dictionary<string, string>();
             if (Directory.Exists(folderPath))
             {
-                foreach (var item in Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".jpg")))
+                foreach (var item in Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".jpg")|| s.EndsWith(".png")))
                 {
                     nameVsPath.Add(item.Split('\\').Last(),item);
                 }
