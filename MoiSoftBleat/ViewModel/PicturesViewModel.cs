@@ -50,15 +50,11 @@ namespace MoiSoftBleat.ViewModel
             _selectedPicture = _picturesManager.Pictures.FirstOrDefault(x => x.Key == ((KeyValuePair<Guid, string>)e.NewValue).Key).Value;
             SelectedPictureImage = _selectedPicture.Image;
 
-            //SelectedItemChanged?.Invoke(d,new SelectedGridItemChangedEventArgs((GridItem)e.OldValue, (GridItem)e.NewValue));
+            SelectedItemChanged?.Invoke(d,new SelectedGridItemChangedEventArgs((GridItem)e.OldValue, (GridItem)e.NewValue));
         }
 
         #endregion
-        public static System.Windows.Controls.Image SelectedPictureImage
-        {
-            get;
-            set;
-        }
+        public static System.Windows.Controls.Image SelectedPictureImage { get; set; }
 
         public System.Windows.Controls.Image SelectedPictureImage2 { get; set; }
         
@@ -85,9 +81,9 @@ namespace MoiSoftBleat.ViewModel
 
             #region ТЕСТЫ!!!!!!
 
-          
-            var img = new System.Windows.Controls.Image { Source = new BitmapImage(new Uri("C:/Users/vasiliy.kononov/Desktop/Work/моя прога/MoiSoftBleat/MoiSoftBleat/bin/Debug/2416548.png")) };
 
+            //var img = new System.Windows.Controls.Image { Source = new BitmapImage(new Uri("C:/Users/vasiliy.kononov/Desktop/Work/моя прога/MoiSoftBleat/MoiSoftBleat/bin/Debug/2416548.png")) };
+            var img = new System.Windows.Controls.Image { Source = new BitmapImage(new Uri("C:/Users/vasiliy.kononov/Desktop/Work/моя прога/MoiSoftBleat/MoiSoftBleat/bin/Debug/2416548.png")) };
             SelectedPictureImage2 = img;
 
 
