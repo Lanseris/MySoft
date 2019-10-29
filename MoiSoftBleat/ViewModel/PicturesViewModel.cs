@@ -22,35 +22,29 @@ namespace MoiSoftBleat.ViewModel
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        //ПОДУМАТЬ КАК ВЫЗВАТЬ СОБЫТИЕ ПРИ СМЕНЕ ФОКУСА ЭЛЕМЕНТА
-
-        public Dictionary<Guid, string> Pictures { get; set; }
+        public Dictionary<Guid, Picture> Pictures { get; set; }
 
         public string FolderPath { get; set; }
-
-        private static Picture _selectedPicture;
 
 
         #region DependencyProperty
 
-        public static event SelectedGridItemChangedEventHandler SelectedItemChanged;
-
-        public KeyValuePair<Guid, string> SelectedItem
+        public KeyValuePair<Guid, Picture> SelectedItem
         {
-            get { return (KeyValuePair<Guid, string>)GetValue(SelectedItemProperty); }
+            get { return (KeyValuePair<Guid, Picture>)GetValue(SelectedItemProperty); }
             set { SetValue(SelectedItemProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for SelectedItem.  This enables animation, styling, binding, etc...
         public readonly DependencyProperty SelectedItemProperty =
-            DependencyProperty.Register("SelectedItem", typeof(KeyValuePair<Guid, string>), typeof(PicturesViewModel), new PropertyMetadata(new KeyValuePair<Guid, string>(), SelectedItem_Changed));
+            DependencyProperty.Register("SelectedItem", typeof(KeyValuePair<Guid, Picture>), typeof(PicturesViewModel), new PropertyMetadata(new KeyValuePair<Guid, Picture>(), SelectedItem_Changed));
 
         private static void SelectedItem_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            _selectedPicture = _picturesManager.Pictures.FirstOrDefault(x => x.Key == ((KeyValuePair<Guid, string>)e.NewValue).Key).Value;
-            SelectedPictureImage = _selectedPicture.Image;
+            //_selectedPicture = _picturesManager.Pictures.FirstOrDefault(x => x.Key == ((KeyValuePair<Guid, string>)e.NewValue).Key).Value;
+            //SelectedPictureImage = _selectedPicture.Image;
 
-            SelectedItemChanged?.Invoke(d,new SelectedGridItemChangedEventArgs((GridItem)e.OldValue, (GridItem)e.NewValue));
+           // SelectedItemChanged?.Invoke(d,new SelectedGridItemChangedEventArgs((GridItem)e.OldValue, (GridItem)e.NewValue));
         }
 
         #endregion
@@ -63,7 +57,8 @@ namespace MoiSoftBleat.ViewModel
         public PicturesViewModel()
         {
             _picturesManager = new PicturesManager();
-            Pictures = _picturesManager.Pictures.ToDictionary(t => t.Key, t => t.Value.Name);
+
+            Pictures = _picturesManager.Pictures;
 
             OnPropertyChanged("Pictures");
 
@@ -75,8 +70,6 @@ namespace MoiSoftBleat.ViewModel
 
             #region Events
 
-            SelectedItemChanged += OnGridSelectedItemChanged;
-
             #endregion
 
             #region ТЕСТЫ!!!!!!
@@ -87,13 +80,13 @@ namespace MoiSoftBleat.ViewModel
             SelectedPictureImage2 = img;
 
 
-
             #endregion
 
         }
 
         #region ICommand members
 
+        //команда, вызывающаяся при нажатии кнопки выбора папки с картинками
         public ICommand selectLoadFolder { get; }
 
         #endregion
@@ -101,21 +94,20 @@ namespace MoiSoftBleat.ViewModel
 
         #region Property update
 
+        //Список свойств, обновляющихся через этот метод:
+        //1 - FolderPath - путь к папке с картинками
         void OnPropertyChanged(string prop)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
 
-        public void OnGridSelectedItemChanged(object sender, SelectedGridItemChangedEventArgs e)
-        {
-            OnPropertyChanged("SelectedPictureImage");
-        }
+        //public void OnGridSelectedItemChanged(object sender, SelectedGridItemChangedEventArgs e)
+        //{
+        //    OnPropertyChanged("SelectedPictureImage");
+        //}
 
         #endregion
 
-        #region MyRegion
-
-        #endregion
 
         /// <summary>
         /// Обработчик собития выбора папки с картинками
@@ -137,7 +129,7 @@ namespace MoiSoftBleat.ViewModel
 
                     #endregion
                     //Изменение источника данных для вьюхи и вызов обновления
-                    Pictures = _picturesManager.Pictures.ToDictionary(t => t.Key, t => t.Value.Name);
+                    Pictures = _picturesManager.Pictures;
                     OnPropertyChanged("Pictures");
                 }
             }
