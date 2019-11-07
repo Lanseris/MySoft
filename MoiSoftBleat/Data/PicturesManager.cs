@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 
 namespace MoiSoftBleat.Data
 {
+    //ПОПРОБОВАТЬ РАЗДЕЛИТЬ НА Accessor и Manager (скорее всего когда буду внедрять Entity)
     public class PicturesManager
     {
         private Dictionary<Guid, Picture> _pictures;
@@ -21,6 +22,8 @@ namespace MoiSoftBleat.Data
 
         private string _folderPath;
 
+        private string _selfLocation;
+
         public PicturesManager()
         {
             LoadPictures();
@@ -28,7 +31,22 @@ namespace MoiSoftBleat.Data
 
         public void SetFolder(string folder)
         {
+            if (string.IsNullOrEmpty(folder))
+                throw new ArgumentNullException("Путь не указан");
+
+            if (!Directory.Exists(folder))
+                throw new ArgumentException("Папки не сущетсвует");
+
+            if (!folder.Equals(_selfLocation))
+            {
+                using (StreamWriter sw = new StreamWriter(_selfLocation + "\\PrevFolder.txt"))
+                {
+                    sw.Write(folder);
+                } 
+            }
+
             _folderPath = folder;
+
         }
         public void LoadPictures()
         {
@@ -36,11 +54,27 @@ namespace MoiSoftBleat.Data
 
             try
             {
+                if (string.IsNullOrEmpty(_folderPath))
+                {
+                    _selfLocation = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-                if (_folderPath != null)
-                    picturesNamesAndPaths = GetPicturesNamesAndPath(_folderPath);
-                else
-                    picturesNamesAndPaths = GetPicturesNamesAndPath(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
+                    if (File.Exists(_selfLocation + "\\PrevFolder.txt"))
+                    {
+                        using (StreamReader sr = new StreamReader(_selfLocation + "\\PrevFolder.txt"))
+                        {
+                            _folderPath = sr.ReadLine();
+                            
+                            if (!Directory.Exists(_folderPath))
+                                _folderPath = null;
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(_folderPath))
+                        _folderPath = _selfLocation; 
+                }
+
+
+                picturesNamesAndPaths = GetPicturesNamesAndPath(_folderPath);
             }
             catch (Exception)
             {
@@ -50,26 +84,6 @@ namespace MoiSoftBleat.Data
             GeneratePicturesByNameAndPath(picturesNamesAndPaths);
 
         }
-        #region УСТАРЕЛО
-        /// <summary>
-        /// генерация объектов картинок с простыми именами
-        /// </summary>
-        /// <param name="picturesNumber"></param>
-        /// <returns></returns>
-        //public Dictionary<Guid, Picture> GenerateTestPictures(int picturesNumber)
-        //{
-        //    Picture picture;
-        //    Dictionary<Guid, Picture> pictures = new Dictionary<Guid, Picture>();
-
-        //    for (int i = 0; i < picturesNumber; i++)
-        //    {
-        //        picture = new Picture("Picture_" + i, new List<string>());
-        //        pictures.Add(picture.pictureUid, picture);
-        //    }
-
-        //    return pictures;
-        //} 
-        #endregion
 
         /// <summary>
         /// генерация объектов картинок с переданными именами
@@ -93,6 +107,9 @@ namespace MoiSoftBleat.Data
 
         public Dictionary<string, string> GetPicturesNamesAndPath(string folderPath)
         {
+            if (string.IsNullOrEmpty(folderPath))
+                throw new ArgumentNullException("Путь не указан");
+
             Dictionary<string, string> nameVsPath = new Dictionary<string, string>();
             if (Directory.Exists(folderPath))
             {

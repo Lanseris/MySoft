@@ -16,7 +16,7 @@ using System.Windows.Media.Imaging;
 
 namespace MoiSoftBleat.ViewModel
 {
-    class PicturesViewModel : DependencyObject, INotifyPropertyChanged  //потом разобраться в этом , 
+    class PicturesViewModel : INotifyPropertyChanged  //потом разобраться в этом , DependencyObject
     {
         private static PicturesManager _picturesManager;
 
@@ -26,33 +26,36 @@ namespace MoiSoftBleat.ViewModel
 
         public string FolderPath { get; set; }
 
-
-        #region DependencyProperty
-
-        public KeyValuePair<Guid, Picture> SelectedItem
+        private KeyValuePair<Guid, Picture> selectedItem;
+        public KeyValuePair<Guid, Picture> SelectedItem 
         {
-            get { return (KeyValuePair<Guid, Picture>)GetValue(SelectedItemProperty); }
-            set { SetValue(SelectedItemProperty, value); }
+            get { return selectedItem; }
+            set 
+            {
+                selectedItem = value;
+                OnPropertyChanged("SelectedItem");
+            } 
         }
 
-        // Using a DependencyProperty as the backing store for SelectedItem.  This enables animation, styling, binding, etc...
-        public readonly DependencyProperty SelectedItemProperty =
-            DependencyProperty.Register("SelectedItem", typeof(KeyValuePair<Guid, Picture>), typeof(PicturesViewModel), new PropertyMetadata(new KeyValuePair<Guid, Picture>(), SelectedItem_Changed));
+        #region DependencyProperty РЕАЛИЗОВАНО БЕЗ НЕГО
 
-        private static void SelectedItem_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            //_selectedPicture = _picturesManager.Pictures.FirstOrDefault(x => x.Key == ((KeyValuePair<Guid, string>)e.NewValue).Key).Value;
-            //SelectedPictureImage = _selectedPicture.Image;
+        //public KeyValuePair<Guid, Picture> SelectedItem
+        //{
+        //    get { return (KeyValuePair<Guid, Picture>)GetValue(SelectedItemProperty); }
+        //    set { SetValue(SelectedItemProperty, value); }
+        //}
 
-           // SelectedItemChanged?.Invoke(d,new SelectedGridItemChangedEventArgs((GridItem)e.OldValue, (GridItem)e.NewValue));
-        }
+        //// Using a DependencyProperty as the backing store for SelectedItem.  This enables animation, styling, binding, etc...
+        //public readonly DependencyProperty SelectedItemProperty =
+        //    DependencyProperty.Register("SelectedItem", typeof(KeyValuePair<Guid, Picture>), typeof(PicturesViewModel), new PropertyMetadata(new KeyValuePair<Guid, Picture>(), SelectedItem_Changed));
+
+        //private static void SelectedItem_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        //{
+        //}
 
         #endregion
+
         public static System.Windows.Controls.Image SelectedPictureImage { get; set; }
-
-        public System.Windows.Controls.Image SelectedPictureImage2 { get; set; }
-        
-
 
         public PicturesViewModel()
         {
@@ -68,17 +71,13 @@ namespace MoiSoftBleat.ViewModel
 
             #endregion
 
-            #region Events
+            #region Events //пусто
+
+            //SelectedGridItemChanged += OnGridSelectedItemChanged;
 
             #endregion
 
-            #region ТЕСТЫ!!!!!!
-
-
-            //var img = new System.Windows.Controls.Image { Source = new BitmapImage(new Uri("C:/Users/vasiliy.kononov/Desktop/Work/моя прога/MoiSoftBleat/MoiSoftBleat/bin/Debug/2416548.png")) };
-            var img = new System.Windows.Controls.Image { Source = new BitmapImage(new Uri("C:/Users/vasiliy.kononov/Desktop/Work/моя прога/MoiSoftBleat/MoiSoftBleat/bin/Debug/2416548.png")) };
-            SelectedPictureImage2 = img;
-
+            #region ТЕСТЫ!!!!!! //пусто
 
             #endregion
 
@@ -101,9 +100,9 @@ namespace MoiSoftBleat.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
 
-        //public void OnGridSelectedItemChanged(object sender, SelectedGridItemChangedEventArgs e)
+        //public void OnGridSelectedItemChanged()
         //{
-        //    OnPropertyChanged("SelectedPictureImage");
+        //    OnPropertyChanged("SelectedItem");
         //}
 
         #endregion
@@ -115,6 +114,7 @@ namespace MoiSoftBleat.ViewModel
         public void SelectLoadFolder()
         {
             FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+           
             if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 if (!String.IsNullOrEmpty(folderBrowserDialog.SelectedPath))
