@@ -105,6 +105,11 @@ namespace MoiSoftBleat.Data
             return pictures;
         }
 
+        /// <summary>
+        /// Формирует Dictionary из имени и полного пути
+        /// </summary>
+        /// <param name="folderPath">место, откуда грузит</param>
+        /// <returns></returns>
         public Dictionary<string, string> GetPicturesNamesAndPath(string folderPath)
         {
             if (string.IsNullOrEmpty(folderPath))

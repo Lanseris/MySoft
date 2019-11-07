@@ -61,9 +61,7 @@ namespace MoiSoftBleat.ViewModel
         {
             _picturesManager = new PicturesManager();
 
-            Pictures = _picturesManager.Pictures;
-
-            OnPropertyChanged("Pictures");
+           
 
             #region ICommand init
 
@@ -81,6 +79,8 @@ namespace MoiSoftBleat.ViewModel
 
             #endregion
 
+
+            UpdatePictures();
         }
 
         #region ICommand members
@@ -99,11 +99,6 @@ namespace MoiSoftBleat.ViewModel
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
-
-        //public void OnGridSelectedItemChanged()
-        //{
-        //    OnPropertyChanged("SelectedItem");
-        //}
 
         #endregion
 
@@ -128,10 +123,23 @@ namespace MoiSoftBleat.ViewModel
                     _picturesManager.LoadPictures();
 
                     #endregion
-                    //Изменение источника данных для вьюхи и вызов обновления
-                    Pictures = _picturesManager.Pictures;
-                    OnPropertyChanged("Pictures");
+
+                    UpdatePictures();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Обновление списка картинок на вьюхе
+        /// </summary>
+        private void UpdatePictures()
+        {
+            Pictures = _picturesManager.Pictures;
+            OnPropertyChanged("Pictures");
+
+            if (Pictures != null)
+            {
+                SelectedItem = Pictures.FirstOrDefault();
             }
         }
 
