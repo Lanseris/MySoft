@@ -11,9 +11,14 @@ namespace MoiSoftBleat.Data
     {
         public readonly Guid pictureUid;
 
-        private string _name;
+        //private string _name;
 
-        public string Name => _name;
+        //public string Name => _name;
+
+        private PictureData _pictureData;
+
+        public PictureData PictureData=>_pictureData;
+
 
         private Image _image;
 
@@ -23,10 +28,21 @@ namespace MoiSoftBleat.Data
 
         public List<string> Tags => _tags;
 
-        public Picture(string name, List<string> tags, Image image)
+        /// <summary>
+        /// Если не указать Guid, сгенерит новый
+        /// </summary>
+        /// <param name="pictureData"></param>
+        /// <param name="tags"></param>
+        /// <param name="image"></param>
+        /// <param name="guid"></param>
+        public Picture(PictureData pictureData, List<string> tags, Image image, Guid? guid = null)
         {
-            pictureUid = Guid.NewGuid();
-            _name = name ?? throw new ArgumentNullException(nameof(name));
+            if (guid != null)
+                pictureUid = (Guid)guid;
+            else
+                pictureUid = Guid.NewGuid();
+
+            _pictureData = pictureData ?? throw new ArgumentNullException(nameof(pictureData));
             _tags = tags ?? throw new ArgumentNullException(nameof(tags));
             _image = image ?? throw new ArgumentNullException(nameof(image));
 
