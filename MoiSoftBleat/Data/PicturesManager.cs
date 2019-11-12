@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using MoiSoftBleat.Auxiliary;
+using MoiSoftBleat.DataModel;
+
 
 namespace MoiSoftBleat.Data
 {
@@ -16,10 +18,6 @@ namespace MoiSoftBleat.Data
         private Dictionary<Guid, Picture> _pictures;
 
         public Dictionary<Guid, Picture> Pictures => _pictures;
-
-        private Dictionary<int, string> _tags;
-
-        public Dictionary<int, string> Tags => _tags;
 
         private string _folderPath;
 
@@ -51,8 +49,6 @@ namespace MoiSoftBleat.Data
         }
         public void LoadPictures()
         {
-            Dictionary<string, PictureData> picturesNamesAndPaths;
-
             try
             {
                 if (string.IsNullOrEmpty(_folderPath))
@@ -74,89 +70,75 @@ namespace MoiSoftBleat.Data
                         _folderPath = _selfLocation;
                 }
 
-
-                picturesNamesAndPaths = GetPicturesNamesAndPath(_folderPath);
+                _pictures = GetPicturesNamesAndPath(_folderPath);
             }
             catch (Exception)
             {
                 throw;
             }
-
-            GeneratePicturesByNameAndPath(picturesNamesAndPaths);
-
         }
-
-        /// <summary>
-        /// генерация объектов картинок с переданными именами
-        /// </summary>
-        /// <param name="names">список имён</param>
-        /// <returns></returns>
-        public Dictionary<Guid, Picture> GeneratePictures(Dictionary<string, PictureData> picturesNamesAndPath)
-        {
-            Picture picture = null;
-            System.Windows.Controls.Image image = null;
-
-           
-
-            Dictionary<Guid, Picture> pictures = new Dictionary<Guid, Picture>();
-
-            foreach (var item in picturesNamesAndPath)
-            {
-                if (File.Exists(item.Value.Path))
-                {
-                    image = new System.Windows.Controls.Image { Source = new BitmapImage(new Uri(item.Value.Path)) };
-                    picture = new Picture(item.Value, new List<string>(), image);
-                }
-                pictures.Add(picture.pictureUid, picture);
-            }
-            return pictures;
-        }
+ 
 
         /// <summary>
         /// Формирует Dictionary из имени и полного пути
         /// </summary>
         /// <param name="folderPath">место, откуда грузит</param>
         /// <returns></returns>
-        public Dictionary<string, PictureData> GetPicturesNamesAndPath(string folderPath)
+        public Dictionary<Guid, Picture> GetPicturesNamesAndPath(string folderPath)
         {
             if (string.IsNullOrEmpty(folderPath))
                 throw new ArgumentNullException("Путь не указан");
 
             PictureData pictureData = null;
-            //var encodings = new ASCIIEncoding();
             FileInfo fileInfo = null;
 
-            Dictionary<string, PictureData> nameVsPath = new Dictionary<string, PictureData>();
+            Picture picture = null;
+            System.Windows.Controls.Image image = null;
+
+            Dictionary<Guid, Picture> pictures = new Dictionary<Guid, Picture>();
+
             if (Directory.Exists(folderPath))
             {
-                foreach (var item in Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".jpg") || s.EndsWith(".png") || s.EndsWith(".bmp")))
+                foreach (var Path in Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".jpg") || s.EndsWith(".png") || s.EndsWith(".bmp")))
                 {
 
-                    System.Drawing.Image newImage = System.Drawing.Image.FromFile(item);
+                    #region Заполнение информации о картинке
 
-                    fileInfo = new FileInfo(item);
+                    //необходимо для получения разрешения картинки
+                    System.Drawing.Image newImage = System.Drawing.Image.FromFile(Path);
+
+                    //вытягивание самой картинки
+                    image = new System.Windows.Controls.Image { Source = new BitmapImage(new Uri(Path)) };
+
+                    fileInfo = new FileInfo(Path);
                     pictureData = new PictureData
                     {
+                        guid = Guid.NewGuid(), //оставить так до разборок
                         ImgName = fileInfo.Name,
-                        Path = item,
+                        Path = Path,
                         Size = IntToBytesExtension.ToBytes((int)fileInfo.Length),
                         Resolution = newImage.Width.ToString() + " x " + newImage.Height.ToString(),
-                        ImgType = fileInfo.Extension
+                        ImgType = fileInfo.Extension,
+                        Tags = new List<Tag>() // пока пустой
+                        
                     };
 
-                    nameVsPath.Add(item.Split('\\').Last(), pictureData);
+                    #endregion
+
+                    
+                    //формирование конечного объекта
+                    picture = new Picture(pictureData, new List<string>(), image);
+
+                    //добавление проинициализированного объекта в итоговую коллекцию
+                    pictures.Add(picture.PictureData.guid, picture);
+
                 }
 
-                return nameVsPath;
+                return pictures;
             }
             else
                 return null;
-        }
-
-        public void GeneratePicturesByNameAndPath(Dictionary<string, PictureData> picturesNamesAndPath)
-        {
-            _pictures = GeneratePictures(picturesNamesAndPath);
-        }
+        } 
 
         public bool SavePicture()
         {
