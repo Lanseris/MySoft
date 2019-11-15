@@ -82,6 +82,7 @@
     <Compile Include="DataModel\PictureData.cs" />
     <Compile Include="DataModel\PicturesContext.cs" />
     <Compile Include="DataModel\Tag.cs" />
+    <Compile Include="DataModel\TagsContext.cs" />
     <Compile Include="ViewModel\PicturesViewModel.cs" />
     <Page Include="View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

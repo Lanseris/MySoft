@@ -76,8 +76,37 @@ namespace MoiSoftBleat.Data
             {
                 throw;
             }
+            //CODE FIRST TESTS!!!
+            GenerateDBTest(_pictures);
         }
- 
+        #region ТЕСТОВАЯ ХЕРНЯ ДЛЯ ГЕНЕРАЦИИ БД
+
+        public void GenerateDBTest(Dictionary<Guid, Picture> pictures)
+        {
+            #region Генерация тегов
+            List<Tag> tags = new List<Tag>();
+
+            for (int i = 0; i < 10; i++)
+            {
+                tags.Add(new Tag() { TagUid = Guid.NewGuid(), PicturesNumber = i, TagName = "Tag" + i.ToString() });
+            }
+            #endregion
+
+            using (PicturesContext picturesContext = new PicturesContext())
+            {
+                picturesContext.picturesData.AddRange(pictures.Select(x => x.Value.PictureData).ToList());
+                picturesContext.SaveChanges();
+            }
+
+            using (TagsContext tagsContext = new TagsContext())
+            {
+                tagsContext.tags.AddRange(tags);
+                tagsContext.SaveChanges();
+            }
+
+
+        } 
+        #endregion
 
         /// <summary>
         /// Формирует Dictionary из имени и полного пути
@@ -113,7 +142,7 @@ namespace MoiSoftBleat.Data
                     fileInfo = new FileInfo(Path);
                     pictureData = new PictureData
                     {
-                        guid = Guid.NewGuid(), //оставить так до разборок
+                        PictureDataUid = Guid.NewGuid(), //оставить так до разборок
                         ImgName = fileInfo.Name,
                         Path = Path,
                         Size = IntToBytesExtension.ToBytes((int)fileInfo.Length),
@@ -130,7 +159,7 @@ namespace MoiSoftBleat.Data
                     picture = new Picture(pictureData, new List<string>(), image);
 
                     //добавление проинициализированного объекта в итоговую коллекцию
-                    pictures.Add(picture.PictureData.guid, picture);
+                    pictures.Add(picture.PictureData.PictureDataUid, picture);
 
                 }
 
