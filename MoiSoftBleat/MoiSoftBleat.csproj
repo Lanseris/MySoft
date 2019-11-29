@@ -82,7 +82,26 @@
     <Compile Include="DataModel\PictureData.cs" />
     <Compile Include="DataModel\PicturesContext.cs" />
     <Compile Include="DataModel\Tag.cs" />
-    <Compile Include="DataModel\TagsContext.cs" />
+    <Compile Include="Migrations\201911151422174_InitialCreate.cs" />
+    <Compile Include="Migrations\201911151422174_InitialCreate.Designer.cs">
+      <DependentUpon>201911151422174_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201911180752453_TagsCghanges.cs" />
+    <Compile Include="Migrations\201911180752453_TagsCghanges.Designer.cs">
+      <DependentUpon>201911180752453_TagsCghanges.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201911181012463_TagRevert.cs" />
+    <Compile Include="Migrations\201911181012463_TagRevert.Designer.cs">
+      <DependentUpon>201911181012463_TagRevert.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201911221122522_Test.cs" />
+    <Compile Include="Migrations\201911221122522_Test.Designer.cs">
+      <DependentUpon>201911221122522_Test.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201911221443378_ChangeS.cs" />
+    <Compile Include="Migrations\201911221443378_ChangeS.Designer.cs">
+      <DependentUpon>201911221443378_ChangeS.cs</DependentUpon>
+    </Compile>
     <Compile Include="ViewModel\PicturesViewModel.cs" />
     <Page Include="View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -113,6 +132,21 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="Migrations\201911151422174_InitialCreate.resx">
+      <DependentUpon>201911151422174_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201911180752453_TagsCghanges.resx">
+      <DependentUpon>201911180752453_TagsCghanges.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201911181012463_TagRevert.resx">
+      <DependentUpon>201911181012463_TagRevert.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201911221122522_Test.resx">
+      <DependentUpon>201911221122522_Test.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201911221443378_ChangeS.resx">
+      <DependentUpon>201911221443378_ChangeS.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

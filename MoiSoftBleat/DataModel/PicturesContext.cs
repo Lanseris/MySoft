@@ -10,8 +10,9 @@ namespace MoiSoftBleat.DataModel
             : base("name=PicturesContext")
         {
         }
-
         public DbSet<PictureData> picturesData { get; set; }
+
+        public DbSet<Tag> tags { get; set; }
 
     }
 }

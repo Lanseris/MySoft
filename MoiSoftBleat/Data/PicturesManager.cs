@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -76,36 +77,69 @@ namespace MoiSoftBleat.Data
             {
                 throw;
             }
-            //CODE FIRST TESTS!!!
-            GenerateDBTest(_pictures);
-        }
-        #region ТЕСТОВАЯ ХЕРНЯ ДЛЯ ГЕНЕРАЦИИ БД
+            #region CODE FIRST TESTS!!!
 
+            ClearTables();
+            //Создание бд, если её нет, заполнение таблиц
+            GenerateDBTest(_pictures); 
+            #endregion
+        }
+        #region ТЕСТОВАЯ ХЕРНЯ ДЛЯ CODE FIRST
+
+        public void ClearTables()
+        {
+            //ОЧЕНЬ ХУЁВОЕ РЕШЕНИЕ, но альтернатив пока не найдено
+            //удаляет построчно
+            //truncate ругается на FK, а отметять его проверку не хочу
+
+            using (PicturesContext picturesContext = new PicturesContext())
+            {
+                picturesContext.picturesData.RemoveRange(picturesContext.picturesData);
+                picturesContext.tags.RemoveRange(picturesContext.tags);
+
+                picturesContext.SaveChanges();
+            }
+        }
+
+        /// <summary>
+        /// //Создание бд, если её нет, заполнение таблиц
+        /// </summary>
+        /// <param name="pictures"></param>
         public void GenerateDBTest(Dictionary<Guid, Picture> pictures)
         {
             #region Генерация тегов
-            List<Tag> tags = new List<Tag>();
+            List<Tag> genaratedTags = new List<Tag>();
 
-            for (int i = 0; i < 10; i++)
-            {
-                tags.Add(new Tag() { TagUid = Guid.NewGuid(), PicturesNumber = i, TagName = "Tag" + i.ToString() });
-            }
+            genaratedTags = GenerateTags(10);
             #endregion
 
             using (PicturesContext picturesContext = new PicturesContext())
             {
                 picturesContext.picturesData.AddRange(pictures.Select(x => x.Value.PictureData).ToList());
                 picturesContext.SaveChanges();
+
+                picturesContext.tags.AddRange(genaratedTags);
+                int i = picturesContext.SaveChanges();
             }
-
-            using (TagsContext tagsContext = new TagsContext())
-            {
-                tagsContext.tags.AddRange(tags);
-                tagsContext.SaveChanges();
-            }
-
-
         } 
+
+        /// <summary>
+        /// Генерация простых тегов для тестов
+        /// </summary>
+        /// <param name="count">Необходимое количество</param>
+        /// <returns></returns>
+        public List<Tag> GenerateTags(int count)
+        {
+            List<Tag> tags = new List<Tag>();
+
+            for (int i = 0; i < count; i++)
+            {
+                tags.Add(new Tag() { TagUid = Guid.NewGuid(), PicturesNumber = i, TagName = "Tag" + i.ToString(), PicturesData = new List<PictureData>()  });
+            }
+
+            return tags;
+        }
+
         #endregion
 
         /// <summary>
