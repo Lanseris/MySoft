@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using MoiSoftBleat.Auxiliary;
 using MoiSoftBleat.DataModel;
+using System.Threading;
 
 
 namespace MoiSoftBleat.Data
@@ -66,12 +67,14 @@ namespace MoiSoftBleat.Data
                                 _folderPath = null;
                         }
                     }
-
                     if (string.IsNullOrEmpty(_folderPath))
                         _folderPath = _selfLocation;
                 }
 
+
                 _pictures = GetPicturesNamesAndPath(_folderPath);
+
+
             }
             catch (Exception)
             {
@@ -79,9 +82,12 @@ namespace MoiSoftBleat.Data
             }
             #region CODE FIRST TESTS!!!
 
+            //очистка теперь только тегов, т к картинки загружаются только те, которых ещё в базе нет
             ClearTables();
-            //Создание бд, если её нет, заполнение таблиц
-            GenerateDBTest(_pictures); 
+            //Создание бд, если её нет, базовое заполнение таблиц
+            //Картинками из выбранной папки и простыми сгенерированными тегами
+            //передаются отлько те картинки , которые ещё не сохранены в базе
+            GenerateDBTest(_pictures.Where(x=>x.Value.PictureData.Stored == false).ToDictionary(y=>y.Key,y=>y.Value)); 
             #endregion
         }
         #region ТЕСТОВАЯ ХЕРНЯ ДЛЯ CODE FIRST
@@ -105,7 +111,9 @@ namespace MoiSoftBleat.Data
         /// //Создание бд, если её нет, заполнение таблиц
         /// </summary>
         /// <param name="pictures"></param>
-        public void GenerateDBTest(Dictionary<Guid, Picture> pictures)
+        ///TODO 
+        ///1 - в дальнейшем будет неободимо ввести границы размеров разовой операции
+        public void GenerateDBTest(Dictionary<Guid, Picture> pictures) 
         {
             #region Генерация тегов
             List<Tag> genaratedTags = new List<Tag>();
@@ -120,6 +128,25 @@ namespace MoiSoftBleat.Data
 
                 picturesContext.tags.AddRange(genaratedTags);
                 int i = picturesContext.SaveChanges();
+            }
+
+            foreach (var picture in pictures.Values)
+            {
+                if (File.Exists(picture.PictureData.Path))
+                {
+                    
+                    FileInfo fileInfo = new FileInfo(picture.PictureData.Path);
+
+                    picture.PictureData.ImgName = "DragonsCave_" + picture.PictureData.ImgName;
+                    string newPath = Path.Combine(fileInfo.DirectoryName + "\\", picture.PictureData.ImgName);
+                    picture.PictureData.Path = newPath;
+
+                    fileInfo.CopyTo(newPath);
+                    
+                    _pictures[picture.PictureData.PictureDataUid].Image.Source = new BitmapImage(new Uri(newPath));
+                    ///НЕ ПОЛУЧАЕТСЯ СБРОСИТЬ ПОТОК, КОТОРЫЙ ДЕРЖИТ ИЗНАЧАЛЬНУЮ КАРТИНКУ
+                    fileInfo.Delete();
+                }
             }
         } 
 
@@ -162,6 +189,8 @@ namespace MoiSoftBleat.Data
 
             if (Directory.Exists(folderPath))
             {
+
+
                 foreach (var Path in Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".jpg") || s.EndsWith(".png") || s.EndsWith(".bmp")))
                 {
 
@@ -170,20 +199,21 @@ namespace MoiSoftBleat.Data
                     //необходимо для получения разрешения картинки
                     System.Drawing.Image newImage = System.Drawing.Image.FromFile(Path);
 
-                    //вытягивание самой картинки
-                    image = new System.Windows.Controls.Image { Source = new BitmapImage(new Uri(Path)) };
+                    //вытягивание самой картинки из папки
+                    //ЭТИМ УДЕРЖИВАЕТСЯ ФАЙЛ!!!
+                    image = new Image { Source = new BitmapImage(new Uri(Path)) };
 
                     fileInfo = new FileInfo(Path);
                     pictureData = new PictureData
                     {
                         PictureDataUid = Guid.NewGuid(), //оставить так до разборок
                         ImgName = fileInfo.Name,
+                        Stored = fileInfo.Name.Length>12 && fileInfo.Name.Substring(0,12)=="DragonsCave_", 
                         Path = Path,
                         Size = IntToBytesExtension.ToBytes((int)fileInfo.Length),
                         Resolution = newImage.Width.ToString() + " x " + newImage.Height.ToString(),
                         ImgType = fileInfo.Extension,
                         Tags = new List<Tag>() // пока пустой
-                        
                     };
 
                     #endregion
@@ -195,8 +225,9 @@ namespace MoiSoftBleat.Data
                     //добавление проинициализированного объекта в итоговую коллекцию
                     pictures.Add(picture.PictureData.PictureDataUid, picture);
 
-                }
+                    newImage.Dispose();
 
+                }
                 return pictures;
             }
             else

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,5 +18,7 @@ namespace MoiSoftBleat.DataModel
         public string ImgType { get; set; }
         public string Resolution { get; set; }
         public List<Tag> Tags { get; set; }
+        [NotMapped]
+        public bool Stored { get; set; }
     }
 }
