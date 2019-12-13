@@ -100,7 +100,7 @@ namespace MoiSoftBleat.Data
 
             using (PicturesContext picturesContext = new PicturesContext())
             {
-                picturesContext.picturesData.RemoveRange(picturesContext.picturesData);
+               // picturesContext.picturesData.RemoveRange(picturesContext.picturesData);
                 picturesContext.tags.RemoveRange(picturesContext.tags);
 
                 picturesContext.SaveChanges();
@@ -121,6 +121,23 @@ namespace MoiSoftBleat.Data
             genaratedTags = GenerateTags(10);
             #endregion
 
+
+            //переименовываем файл для отслеживания его хранения в бд 
+            foreach (var picture in pictures.Values)
+            {
+                if (File.Exists(picture.PictureData.Path))
+                {
+
+                    FileInfo fileInfo = new FileInfo(picture.PictureData.Path);
+
+                    picture.PictureData.ImgName = "DragonsCave_" + picture.PictureData.ImgName;
+                    string newPath = Path.Combine(fileInfo.DirectoryName + "\\", picture.PictureData.ImgName);
+                    picture.PictureData.Path = newPath;
+                    fileInfo.MoveTo(newPath);
+                }
+            }
+
+            //Сохранение в базу
             using (PicturesContext picturesContext = new PicturesContext())
             {
                 picturesContext.picturesData.AddRange(pictures.Select(x => x.Value.PictureData).ToList());
@@ -130,24 +147,6 @@ namespace MoiSoftBleat.Data
                 int i = picturesContext.SaveChanges();
             }
 
-            foreach (var picture in pictures.Values)
-            {
-                if (File.Exists(picture.PictureData.Path))
-                {
-                    
-                    FileInfo fileInfo = new FileInfo(picture.PictureData.Path);
-
-                    picture.PictureData.ImgName = "DragonsCave_" + picture.PictureData.ImgName;
-                    string newPath = Path.Combine(fileInfo.DirectoryName + "\\", picture.PictureData.ImgName);
-                    picture.PictureData.Path = newPath;
-
-                    fileInfo.CopyTo(newPath);
-                    
-                    _pictures[picture.PictureData.PictureDataUid].Image.Source = new BitmapImage(new Uri(newPath));
-                    ///НЕ ПОЛУЧАЕТСЯ СБРОСИТЬ ПОТОК, КОТОРЫЙ ДЕРЖИТ ИЗНАЧАЛЬНУЮ КАРТИНКУ
-                    fileInfo.Delete();
-                }
-            }
         } 
 
         /// <summary>
@@ -200,8 +199,17 @@ namespace MoiSoftBleat.Data
                     System.Drawing.Image newImage = System.Drawing.Image.FromFile(Path);
 
                     //вытягивание самой картинки из папки
-                    //ЭТИМ УДЕРЖИВАЕТСЯ ФАЙЛ!!!
-                    image = new Image { Source = new BitmapImage(new Uri(Path)) };
+                    //ПРОВЕРИТЬ КЕШИРОВАНИЕ НА БОЛЬШОМ КОЛИЧЕСТВЕ КАРТИНОК!!!
+                    //скорее всего всё пойдёт по пизде и надо делать динамическую выгрузку кеша при загрузке картинок
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(Path);
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.EndInit();
+
+                    image = new Image { Source = bitmap };
+
+
 
                     fileInfo = new FileInfo(Path);
                     pictureData = new PictureData
