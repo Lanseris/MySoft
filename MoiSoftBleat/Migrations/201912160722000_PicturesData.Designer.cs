@@ -7,13 +7,13 @@ namespace MoiSoftBleat.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.2.0-61023")]
-    public sealed partial class InitialCreate : IMigrationMetadata
+    public sealed partial class PicturesData : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(InitialCreate));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(PicturesData));
         
         string IMigrationMetadata.Id
         {
-            get { return "201911151422174_InitialCreate"; }
+            get { return "201912160722000_PicturesData"; }
         }
         
         string IMigrationMetadata.Source

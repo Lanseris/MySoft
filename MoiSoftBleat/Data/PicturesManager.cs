@@ -45,9 +45,7 @@ namespace MoiSoftBleat.Data
                     sw.Write(folder);
                 }
             }
-
             _folderPath = folder;
-
         }
         public void LoadPictures()
         {
@@ -70,11 +68,7 @@ namespace MoiSoftBleat.Data
                     if (string.IsNullOrEmpty(_folderPath))
                         _folderPath = _selfLocation;
                 }
-
-
                 _pictures = GetPicturesNamesAndPath(_folderPath);
-
-
             }
             catch (Exception)
             {
@@ -92,17 +86,19 @@ namespace MoiSoftBleat.Data
         }
         #region ТЕСТОВАЯ ХЕРНЯ ДЛЯ CODE FIRST
 
+
+        /// <summary>
+        /// На время разработки, может и потом понадобится
+        /// </summary>
         public void ClearTables()
         {
             //ОЧЕНЬ ХУЁВОЕ РЕШЕНИЕ, но альтернатив пока не найдено
             //удаляет построчно
             //truncate ругается на FK, а отметять его проверку не хочу
-
             using (PicturesContext picturesContext = new PicturesContext())
             {
-               // picturesContext.picturesData.RemoveRange(picturesContext.picturesData);
+                //picturesContext.picturesData.RemoveRange(picturesContext.picturesData);
                 picturesContext.tags.RemoveRange(picturesContext.tags);
-
                 picturesContext.SaveChanges();
             }
         }
@@ -115,6 +111,7 @@ namespace MoiSoftBleat.Data
         ///1 - в дальнейшем будет неободимо ввести границы размеров разовой операции
         public void GenerateDBTest(Dictionary<Guid, Picture> pictures) 
         {
+            
             #region Генерация тегов
             List<Tag> genaratedTags = new List<Tag>();
 
@@ -180,54 +177,33 @@ namespace MoiSoftBleat.Data
 
             PictureData pictureData = null;
             FileInfo fileInfo = null;
-
             Picture picture = null;
             System.Windows.Controls.Image image = null;
-
             Dictionary<Guid, Picture> pictures = new Dictionary<Guid, Picture>();
 
             if (Directory.Exists(folderPath))
             {
-
-
                 foreach (var Path in Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".jpg") || s.EndsWith(".png") || s.EndsWith(".bmp")))
                 {
-
                     #region Заполнение информации о картинке
-
-                    //необходимо для получения разрешения картинки
-                    System.Drawing.Image newImage = System.Drawing.Image.FromFile(Path);
-
                     //вытягивание самой картинки из папки
                     //ПРОВЕРИТЬ КЕШИРОВАНИЕ НА БОЛЬШОМ КОЛИЧЕСТВЕ КАРТИНОК!!!
-                    //скорее всего всё пойдёт по пизде и надо делать динамическую выгрузку кеша при загрузке картинок
+                    //скорее всего всё пойдёт по пизде и надо делать очистку кеша при загрузке картинок
                     BitmapImage bitmap = new BitmapImage();
                     bitmap.BeginInit();
                     bitmap.UriSource = new Uri(Path);
                     bitmap.CacheOption = BitmapCacheOption.OnLoad;
                     bitmap.EndInit();
 
-                    image = new Image { Source = bitmap };
-
-
-
                     fileInfo = new FileInfo(Path);
-                    pictureData = new PictureData
-                    {
-                        PictureDataUid = Guid.NewGuid(), //оставить так до разборок
-                        ImgName = fileInfo.Name,
-                        Stored = fileInfo.Name.Length>12 && fileInfo.Name.Substring(0,12)=="DragonsCave_", 
-                        Path = Path,
-                        Size = IntToBytesExtension.ToBytes((int)fileInfo.Length),
-                        Resolution = newImage.Width.ToString() + " x " + newImage.Height.ToString(),
-                        ImgType = fileInfo.Extension,
-                        Tags = new List<Tag>() // пока пустой
-                    };
+                    //необходимо для получения разрешения картинки
+                    System.Drawing.Image newImage = System.Drawing.Image.FromFile(Path);
 
+                    pictureData = new PictureData(fileInfo, newImage);
                     #endregion
 
-                    
                     //формирование конечного объекта
+                    image = new Image { Source = bitmap };
                     picture = new Picture(pictureData, new List<string>(), image);
 
                     //добавление проинициализированного объекта в итоговую коллекцию
@@ -236,15 +212,14 @@ namespace MoiSoftBleat.Data
                     newImage.Dispose();
 
                 }
+                if (pictures.Count > 50)
+                {
+                    throw new NotImplementedException("не реализована очистка кеша при загрузке картинок!!!");
+                }
                 return pictures;
             }
             else
                 return null;
         } 
-
-        public bool SavePicture()
-        {
-            return true;
-        }
     }
 }

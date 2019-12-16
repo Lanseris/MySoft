@@ -59,7 +59,7 @@
 
         <StackPanel Grid.Column="3" Grid.Row="1" Margin="5">
             <Label>Имя:</Label>
-            <TextBox Name="ImgName" Text ="{Binding SelectedItem.Value.PictureData.ImgName}" />
+            <TextBox Name="ImgName" Text ="{Binding SelectedItem.Value.PictureData.ImgVisibleName}" />
             <Label>Разрешение:</Label>
             <TextBox Name="Resolution" Text ="{Binding SelectedItem.Value.PictureData.Resolution}" />
             <Label>Размер:</Label>
